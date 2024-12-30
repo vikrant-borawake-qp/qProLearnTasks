@@ -15,6 +15,13 @@ export class ProcessPaymentService {
   ): Promise<PaymentGatewayResponseDto> {
     const {name, cardNumber, cardCvv, cardExpiry} = paymentInfo
 
+    const cardExpiryMonth = parseInt(cardExpiry.split("/")[0]);
+    const cardExpiryYear = parseInt(cardExpiry.split("/")[1]);
+    const cardExpiryDate = new Date(cardExpiryYear, cardExpiryMonth, 1);
+
+    if (cardExpiryDate > new Date())
+      throw new HttpException("Card has expired", HttpStatus.BAD_REQUEST);
+    
     try {
       const paymentResponse = await axios.post(
         'https://payment.gateway.com/api/pay',
