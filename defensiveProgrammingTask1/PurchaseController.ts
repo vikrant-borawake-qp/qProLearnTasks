@@ -29,12 +29,14 @@ export class PurchaseController {
     if (validationError)
       throw new HttpException(validationError, HttpStatus.BAD_REQUEST);
 
-    const transactionInfo = this.processPaymentService.callPaymentGateway({
-      name,
-      cardCvv,
-      cardExpiry,
-      cardNumber,
-    });
+    const transactionInfo = await this.processPaymentService.callPaymentGateway(
+      {
+        name,
+        cardCvv,
+        cardExpiry,
+        cardNumber,
+      }
+    );
 
     if (paymentResponse.status === 200)
       return {
@@ -45,7 +47,7 @@ export class PurchaseController {
     return {
       status: "Internal server error",
       transactionId: "",
-      error: "Insufficient funds",
+      error: transactionInfo.errorMessage,
     };
   }
 }
